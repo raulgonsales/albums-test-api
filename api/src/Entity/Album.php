@@ -7,6 +7,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -16,6 +17,7 @@ class Album
     private ?int $id = null;
 
     #[ORM\Column(nullable: false)]
+    #[Assert\NotBlank]
     public string $title = '';
 
     #[ORM\Column(type: 'text', nullable: true)]
