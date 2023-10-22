@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ApiResource]
+#[ApiResource(routePrefix: '/api')]
 class Image
 {
     #[ORM\Id, ORM\Column, ORM\GeneratedValue]
