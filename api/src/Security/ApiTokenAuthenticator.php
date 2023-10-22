@@ -39,7 +39,9 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
 
         return new SelfValidatingPassport(
             new UserBadge($apiToken, function ($apiToken) {
-                $user = $this->userRepository->findByApiToken($apiToken);
+                $user = $this->userRepository->findOneBy([
+                    'token' => $apiToken,
+                ]);
 
                 if (!$user) {
                     throw new UserNotFoundException();
