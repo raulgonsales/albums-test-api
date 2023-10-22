@@ -31,14 +31,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    /** @var ApiToken[] */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class, orphanRemoval: true)]
-    private iterable $apiTokens;
-
-    public function __construct()
-    {
-        $this->apiTokens = new ArrayCollection();
-    }
+    #[ORM\Column(nullable: true)]
+    private ?string $token = null;
 
     public function getId(): ?int
     {
@@ -110,13 +104,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getApiTokens(): iterable
+    public function getToken(): ?string
     {
-        return $this->apiTokens;
+        return $this->token;
     }
 
-    public function setApiTokens(iterable $apiTokens): void
+    public function setToken(?string $token): void
     {
-        $this->apiTokens = $apiTokens;
+        $this->token = $token;
     }
 }
