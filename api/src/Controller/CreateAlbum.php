@@ -20,7 +20,6 @@ class CreateAlbum extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-//        dd(\json_decode($request->getContent(), true));
         $data = \json_decode($request->getContent(), true);
 
         if (!$data) {

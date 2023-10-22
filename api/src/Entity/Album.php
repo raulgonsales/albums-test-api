@@ -4,11 +4,14 @@ declare(strict_types = 1);
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Controller\CreateAlbum;
+use App\Controller\GetAlbumsCollection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,6 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         name: 'create_album',
     )
 ], formats: ['json'], routePrefix: '/api', normalizationContext: ['groups' => ['get']], denormalizationContext: ['groups' => ['post']])]
+#[ApiFilter(SearchFilter::class, properties: ['ownerId' => 'exact'])]
 class Album
 {
     #[ORM\Id, ORM\Column, ORM\GeneratedValue]
