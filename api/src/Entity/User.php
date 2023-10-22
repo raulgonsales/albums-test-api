@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -8,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -17,6 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('get')]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -33,6 +37,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?string $token = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Album::class)]
+    private iterable $albums;
+
+    public function __construct()
+    {
+        $this->albums = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -112,5 +124,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setToken(?string $token): void
     {
         $this->token = $token;
+    }
+
+    public function getAlbums(): iterable
+    {
+        return $this->albums;
+    }
+
+    public function setAlbums(iterable $albums): void
+    {
+        $this->albums = $albums;
     }
 }
