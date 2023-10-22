@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class ApiTokenAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
+class ApiTokenAuthenticator extends AbstractAuthenticator
 {
     private UserRepository $userRepository;
 
@@ -27,7 +27,11 @@ class ApiTokenAuthenticator extends AbstractAuthenticator implements Authenticat
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has('X-TOKEN');
+        if ($request->getRequestUri() === '/api/login') {
+            return false;
+        }
+
+        return true;
     }
 
     public function authenticate(Request $request): Passport
@@ -63,17 +67,5 @@ class ApiTokenAuthenticator extends AbstractAuthenticator implements Authenticat
         return new JsonResponse([
             'message' => $exception->getMessage(),
         ], Response::HTTP_UNAUTHORIZED);
-    }
-
-    public function start(Request $request, AuthenticationException $authException = null): Response
-    {
-        /*
-         * If you would like this class to control what happens when an anonymous user accesses a
-         * protected page (e.g. redirect to /login), uncomment this method and make this class
-         * implement Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface.
-         *
-         * For more details, see https://symfony.com/doc/current/security/experimental_authenticators.html#configuring-the-authentication-entry-point
-         */
-        return new JsonResponse();
     }
 }
