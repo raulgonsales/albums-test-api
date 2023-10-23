@@ -34,6 +34,11 @@ class CreateAlbum extends AbstractController
         $this->entityManager->persist($album);
         $this->entityManager->flush();
 
-        return new JsonResponse([$album]);
+        return new JsonResponse([
+            'album' => [
+                'id' => $album->getId(),
+                'title' => $album->getTitle(),
+            ]
+        ]);
     }
 }

@@ -11,7 +11,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Controller\CreateAlbum;
-use App\Controller\GetAlbumsCollection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,12 +19,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ApiResource(operations: [
-    new GetCollection(),
-    new Get(),
+    new GetCollection(
+        security: 'is_granted("ROLE_LOGGED_USER")'
+    ),
+    new Get(
+        security: 'is_granted("ROLE_LOGGED_USER")'
+    ),
     new Post(
         uriTemplate: '/albums',
         controller: CreateAlbum::class,
-        name: 'create_album',
+        security: 'is_granted("ROLE_LOGGED_USER")',
+        name: 'create_album'
     )
 ], formats: ['json'], routePrefix: '/api', normalizationContext: ['groups' => ['get']], denormalizationContext: ['groups' => ['post']])]
 #[ApiFilter(SearchFilter::class, properties: ['ownerId' => 'exact'])]
