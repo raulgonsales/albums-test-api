@@ -7,6 +7,7 @@
         "ext-iconv": "*",
         "api-platform/core": "^3.1",
         "doctrine/doctrine-bundle": "^2.7",
+        "doctrine/doctrine-fixtures-bundle": "^3.4",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.12",
         "nelmio/cors-bundle": "^2.2",
@@ -27,7 +28,8 @@
         "symfony/serializer": "6.3.*",
         "symfony/twig-bundle": "6.3.*",
         "symfony/validator": "6.3.*",
-        "symfony/yaml": "6.3.*"
+        "symfony/yaml": "6.3.*",
+        "zenstruck/foundry": "^1.36"
     },
     "require-dev": {
         "api-platform/schema-generator": "^5.0",
