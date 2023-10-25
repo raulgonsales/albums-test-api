@@ -38,18 +38,23 @@ Password: !ChangeMe!
 
 Better to restart `Docker` before.
 
-Run `install.sh` script. It will build containers, install composer dependencies
-and run all needed migrations (with users inserted).
-
-If running of the script will result in `permission denied: ./install.sh`, run `chmod +x install.sh`. 
-But it should not happen.
-
-Then seed some fake random data into the DB:
-```
-docker compose exec php \
-bin/console doctrine:fixtures:load --append
-```
-
+1. Run ``docker compose build --no-cache``. This will build all needed containers. Wait until it is finished.
+2. Run ``docker compose up --pull --wait ``. This will run containers and run migrations.
+Wait until you see:
+    ```
+    albums-test-api-php-1       | Waiting for database to be ready...
+    albums-test-api-php-1       | The database is now ready and reachable
+    albums-test-api-php-1       | [notice] Migrating up to DoctrineMigrations\Version20231024193304
+    albums-test-api-php-1       | [notice] finished in 37.8ms, used 24M memory, 8 migrations executed, 32 sql queries
+    albums-test-api-php-1       | 
+    albums-test-api-php-1       |  [OK] Successfully migrated to version :                                        
+    albums-test-api-php-1       |       DoctrineMigrations\Version20231024193304  
+    ```
+3. Seed some faked data into DB in new terminal window.
+    ```
+    docker compose exec php \
+    bin/console doctrine:fixtures:load --append
+    ```
 
 ## API usage
 
