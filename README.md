@@ -1,50 +1,108 @@
-<h1 align="center"><a href="https://api-platform.com"><img src="https://api-platform.com/images/logos/Logo_Circle%20webby%20text%20blue.png" alt="API Platform" width="250" height="250"></a></h1>
+## Basic overview
 
-API Platform is a next-generation web framework designed to easily create API-first projects without compromising extensibility
-and flexibility:
+The application is developed with api-platform framework (https://api-platform.com/).
 
-* Design your own data model as plain old PHP classes or [**import an existing ontology**](https://api-platform.com/docs/schema-generator).
-* **Expose in minutes a hypermedia REST or a GraphQL API** with pagination, data validation, access control, relation embedding,
-  filters, and error handling...
-* Benefit from Content Negotiation: [GraphQL](https://api-platform.com/docs/core/graphql/), [JSON-LD](https://json-ld.org), [Hydra](https://hydra-cg.com),
-  [HAL](https://github.com/mikekelly/hal_specification/blob/master/hal_specification.md), [JSON:API](https://jsonapi.org/), [YAML](https://yaml.org/), [JSON](https://www.json.org/), [XML](https://www.w3.org/XML/) and [CSV](https://www.ietf.org/rfc/rfc4180.txt) are supported out of the box.
-* Enjoy the **beautiful automatically generated API documentation** ([OpenAPI](https://api-platform.com/docs/core/openapi/)).
-* Add [**a convenient Material Design administration interface**](https://api-platform.com/docs/admin) built with [React](https://reactjs.org/)
-  without writing a line of code.
-* **Scaffold fully functional Progressive-Web-Apps and mobile apps** built with [Next.js](https://api-platform.com/docs/client-generator/nextjs/) (React),
-[Nuxt.js](https://api-platform.com/docs/client-generator/nuxtjs/) (Vue.js) or [React Native](https://api-platform.com/docs/client-generator/react-native/)
-thanks to [the client generator](https://api-platform.com/docs/client-generator/) (a Vue.js generator is also available).
-* Install a development environment and deploy your project in production using **[Docker](https://api-platform.com/docs/distribution)**
-and [Kubernetes](https://api-platform.com/docs/deployment/kubernetes).
-* Easily add **[OAuth](https://oauth.net/) authentication**.
-* Create specs and tests with **[a developer friendly API testing tool](https://api-platform.com/docs/distribution/testing/)**.
+After running `install.sh` script, the full application will be ready and prepared to receive API requests.
 
-[![GitHub Actions](https://github.com/api-platform/core/workflows/CI/badge.svg)](https://github.com/api-platform/core/actions?workflow=CI)
-[![Codecov](https://codecov.io/gh/api-platform/core/branch/master/graph/badge.svg)](https://codecov.io/gh/api-platform/core/branch/master)
+The database will have 3 users prepared (passwords are hashed with `bcrypt`, so do not change it in database directly):
+    
+1. Basic user that has a `ROLE_LOGGED_USER`. This user is a user that has
+ all rights to work with the API (create album, get albums, etc...)
 
-The official project documentation is available **[on the API Platform website](https://api-platform.com)**.
+    **username**: `amateri.user`, **password**: `amateri_password`
 
-API Platform embraces open web standards and the
-[Linked Data](https://www.w3.org/standards/semanticweb/data) movement. Your API will automatically expose structured data.
-It means that your API Platform application is usable **out of the box** with technologies of
-the semantic web.
+2. Same as `amateri.user` but with different password.
 
-It also means that **your SEO will be improved** because **[Google leverages these formats](https://developers.google.com/search/docs/guides/intro-structured-data)**.
+   **username**: `test.user`, **password**: `test_password`
 
-Last but not least, the server component of API Platform is built on top of the [Symfony](https://symfony.com) framework,
-while client components leverage [React](https://reactjs.org/) ([Vue.js](https://vuejs.org/) flavors are also available).
-It means that you can:
+3. Vendor user with role `ROLE_VENDOR_USER`. This user can be logged in into the 
+application but cannot access `/api/*` resource
 
-* Use **thousands of Symfony bundles and React components** with API Platform.
-* Integrate API Platform in **any existing Symfony, React, or Vue application**.
-* Reuse **all your Symfony and JavaScript skills**, and benefit from the incredible amount of documentation available.
-* Enjoy the popular [Doctrine ORM](https://www.doctrine-project.org/projects/orm.html) (used by default, but fully optional:
-  you can use the data provider you want, including but not limited to MongoDB and Elasticsearch)
+   **username**: `vendor.user`, **password**: `vendor_password`
+
+In addition to users, the database has also `album` and `image` tables. These tables have random faked data prepared.
+
+PostgreSQL credential:
+```json
+host: localhost
+user: app
+DB: app
+Password: !ChangeMe!
+```
+
+## Requirements
+
+`Docker`
 
 ## Install
 
-[Read the official "Getting Started" guide](https://api-platform.com/docs/distribution).
+Better to restart `Docker` before.
 
-## Credits
+Run `install.sh` script. It will build containers, install composer dependencies
+and run all needed migrations (with users inserted).
 
-Created by [Kévin Dunglas](https://dunglas.fr). Commercial support is available at [Les-Tilleuls.coop](https://les-tilleuls.coop).
+If running of the script will result in `permission denied: ./install.sh`, run `chmod +x install.sh`. 
+But it should not happen.
+
+Then seed some fake random data into the DB:
+```
+docker compose exec php \
+bin/console doctrine:fixtures:load --append
+```
+
+
+## API usage
+
+`POST https://localhost/api/login` - will log in a user. It will create a token and save it in 
+user record in database (column `token`). This token is returned in the Response in login request.
+
+Body example:
+```json
+{
+  "username": "amateri.user",
+  "password": "amateri_password"
+}
+```
+
+The returned token then should be set as an `X-TOKEN` header in any `/api/*` resource. For example:
+
+```X-TOKEN: 905db59c371384518c4405ee58a30f829ee74259568a03dffec321230abac32b520ee0649e54bf13f5da19```
+
+With this token you can access following resources:
+
+
+1. `POST https://localhost/api/albums` - will create an album in DB. Returns `id` and `title` of the created album.
+
+    Body example:
+    ```json
+    {
+      "title": "test album",
+      "description": "my super album",
+      "images": [
+          {
+              "url": "http://test.com/image.jpg"
+          }
+      ]
+    }
+    ```
+
+2. `GET https://localhost/api/albums` - gets all albums collection.
+    
+    Albums can be filtered by id of its owner. For example:
+
+   `GET https://localhost/api/albums?ownerId=2`
+
+3. `GET https://localhost/api/albums/{id_album}` - gets a specific album.
+
+More API endpoints are listed on https://localhost/docs
+
+## Space for improvements
+
+This is a fresh implementation and here can be many thing to improve. I see some big problems here:
+1. `env` variables are not ignored and pushed to GIT. This should not be like that,
+but it is much easier to fast run and test this application.
+2. Tokens of the logged user are saved into `token` column of user record in `user` database. 
+I would improve it and create a new table specifically for tokens. So then we can handle different
+access tokens for a specific user, so user can be logged it with different devices or can have different access tokens 
+for different resources.
+3. We can also add token expiration, token invalidation functionality to the application
